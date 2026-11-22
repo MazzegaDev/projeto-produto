@@ -1,4 +1,5 @@
 //importando os packages instalados
+require("dotenv").config();
 const express = require('express');
 const expressLayouts = require('express-ejs-layouts');
 const HomeRoute = require('./routes/homeRoute');
