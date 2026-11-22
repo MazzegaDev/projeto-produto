@@ -84,14 +84,8 @@ class ProdutoModel {
                 valorPrd = "0.00";
 
             let prdImagem = row["prd_imagem"];
-            if(prdImagem != null && prdImagem != ""){
-                //checar se existe
-                if(fs.existsSync(global.RAIZ_PROJETO + "/public" + global.PRODUTO_IMG_CAMINHO + prdImagem) == false) {
-                    prdImagem = "sem-imagem.png";
-                }
-            }
-            else {
-                prdImagem = "sem-imagem.png"
+            if(!prdImagem || prdImagem.trim() === ""){
+                prdImagem = "sem-imagem.png";
             }
 
             prdImagem = global.PRODUTO_IMG_CAMINHO + prdImagem;
@@ -118,14 +112,8 @@ class ProdutoModel {
                 var row = rows[i];
 
                 let prdImagem = row["prd_imagem"];
-                if(prdImagem != null && prdImagem != ""){
-                    //checar se existe
-                    if(fs.existsSync(global.RAIZ_PROJETO + "/public" + global.PRODUTO_IMG_CAMINHO + prdImagem) == false) {
-                        prdImagem = "sem-imagem.png";
-                    }
-                }
-                else {
-                    prdImagem = "sem-imagem.png"
+                if(!prdImagem || prdImagem.trim() === ""){
+                    prdImagem = "sem-imagem.png";
                 }
 
                 listaRetorno.push(new ProdutoModel(row['prd_id'], 
