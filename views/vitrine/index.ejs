@@ -23,8 +23,6 @@
                 padding: 10px;
             }
 
-
-
             .divBotoesCarrinho {
                 display: flex;
                 justify-content: space-around;
@@ -127,6 +125,15 @@
     
                                     </tbody>
                                 </table>
+                            </div>
+
+                            <!-- Campo de solicitação de e-mail para confirmação do pedido via fila OCI -->
+                            <div class="mt-4 pt-3 border-top" id="divEmailCheckout">
+                                <label for="inputEmailPedido" class="form-label fw-bold">
+                                    <i class="bi bi-envelope-fill me-1"></i> E-mail para confirmação do pedido:
+                                </label>
+                                <input type="email" class="form-control" id="inputEmailPedido" placeholder="Digite seu e-mail (ex: cliente@email.com)" required>
+                                <div class="form-text text-muted">Enviaremos os detalhes do pedido e valor total para este e-mail.</div>
                             </div>
                         </div>
                         <div class="modal-footer" style="display:block;">

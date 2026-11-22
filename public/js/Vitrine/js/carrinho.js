@@ -25,34 +25,60 @@ function gravarPedido() {
     let carrinho = localStorage.getItem('carrinho');
 
     if(carrinho != null && carrinho != ''){
+        let listaCarrinho = JSON.parse(carrinho);
+
+        if (listaCarrinho.length === 0) {
+            alert("Carrinho vazio!");
+            return;
+        }
+
+        let inputEmail = document.getElementById("inputEmailPedido");
+        let email = inputEmail ? inputEmail.value.trim() : "";
+
+        if (!email || !email.includes("@") || !email.includes(".")) {
+            alert("Por favor, informe um e-mail válido para receber a confirmação do pedido!");
+            if (inputEmail) inputEmail.focus();
+            return;
+        }
+
+        let payload = {
+            email: email,
+            itens: listaCarrinho
+        };
 
         fetch('/gravar-pedido', {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
-            body: carrinho
+            body: JSON.stringify(payload)
         })
         .then(r => {
             return r.json();
         })
         .then(function(r) {
             if(r.ok){
-                alert("Pedido gravado com sucesso");
-                //remove tudo do localStorage
-                //localStorage.clear();
+                alert("Pedido confirmado com sucesso!\nUm e-mail com os detalhes do pedido foi enfileirado para envio.");
                 //remove apenas uma chave com seu valor do local
                 localStorage.removeItem('carrinho');
                 document.getElementById("valorTotalCarrinho").innerHTML = "";
                 document.getElementById("corpoTabelaCarrinho").innerHTML = "";
                 document.getElementById("contadorCarrinho").innerText = 0;
+                if (inputEmail) inputEmail.value = "";
+                
+                let modalEl = document.getElementById('carrinhoModal');
+                let modalInstance = bootstrap.Modal.getInstance(modalEl);
+                if (modalInstance) {
+                    modalInstance.hide();
+                }
             }
             else{
-                alert(r.msg);
+                alert(r.msg || "Erro ao processar pedido");
             }
         })
         .catch(function(e) {
-
+            console.error("Erro ao gravar pedido:", e);
+            alert("Erro de comunicação com o servidor!");
         })
     }
     else{
@@ -207,9 +233,14 @@ function carregarCarrinho() {
         document.getElementById("corpoTabelaCarrinho").innerHTML = htmlCorpoModal;
         let valorTotal = calculaTotalCarrinho();
         document.getElementById("valorTotalCarrinho").innerHTML = "<h3>Valor total: R$ "+ valorTotal +"</h3>";
+        
+        let divEmail = document.getElementById("divEmailCheckout");
+        if (divEmail) divEmail.style.display = "block";
     }
     else {
-        document.getElementById("corpoModal").innerHTML = 'Carrinho vazio!';
+        document.getElementById("corpoTabelaCarrinho").innerHTML = "";
+        document.getElementById("corpoModal").innerHTML = '<p class="text-center my-4 text-muted">Carrinho vazio!</p>';
+        document.getElementById("valorTotalCarrinho").innerHTML = "";
     }
 }
 

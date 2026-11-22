@@ -1,0 +1,162 @@
+<mxfile host="app.diagrams.net" modified="2026-11-22T18:50:00.000Z" agent="Mozilla/5.0" version="21.6.8" type="device">
+  <diagram id="oci-ecommerce-architecture" name="Arquitetura OCI - E-commerce">
+    <mxGraphModel dx="1422" dy="880" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="900" background="#F8F9FA">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Titulo do Esquema -->
+        <mxCell id="title" value="Arquitetura de Nuvem na Oracle Cloud Infrastructure (OCI)&#xa;Sistema de E-commerce Fullstack (Node/Express, MySQL, Bucket, Fila e E-mail)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=20;fontStyle=1;fontColor=#1E293B;" vertex="1" parent="1">
+          <mxGeometry x="150" y="20" width="1100" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Internet / Usuarios Externos -->
+        <mxCell id="client" value="&lt;b&gt;Usuários / Clientes (Web)&lt;/b&gt;&lt;br&gt;Navegador Web / Mobile" style="shape=mxgraph.cisco.misc.users;html=1;dashed=0;fillColor=#E2E8F0;strokeColor=#64748B;verticalLabelPosition=bottom;verticalAlign=top;align=center;outlineConnect=0;fontColor=#0F172A;" vertex="1" parent="1">
+          <mxGeometry x="60" y="270" width="80" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- Regiao OCI: sa-saopaulo-1 -->
+        <mxCell id="oci_region" value="Região OCI: sa-saopaulo-1 (São Paulo)" style="swimlane;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 4;fillColor=#FEF2F2;strokeColor=#DC2626;strokeWidth=2;fontStyle=1;fontColor=#991B1B;fontSize=14;startSize=30;" vertex="1" parent="1">
+          <mxGeometry x="200" y="90" width="1150" height="770" as="geometry" />
+        </mxCell>
+
+        <!-- VCN -->
+        <mxCell id="vcn" value="Virtual Cloud Network (VCN) - 10.0.0.0/16" style="swimlane;whiteSpace=wrap;html=1;fillColor=#EFF6FF;strokeColor=#2563EB;strokeWidth=2;fontStyle=1;fontColor=#1E40AF;fontSize=13;startSize=30;" vertex="1" parent="oci_region">
+          <mxGeometry x="40" y="50" width="760" height="690" as="geometry" />
+        </mxCell>
+
+        <!-- Internet Gateway -->
+        <mxCell id="igw" value="&lt;b&gt;Internet Gateway (IGW)&lt;/b&gt;&lt;br&gt;Entrada / Saída Pública" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DBEAFE;strokeColor=#3B82F6;fontColor=#1E3A8A;" vertex="1" parent="vcn">
+          <mxGeometry x="30" y="160" width="140" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- NAT Gateway -->
+        <mxCell id="natgw" value="&lt;b&gt;NAT Gateway&lt;/b&gt;&lt;br&gt;Saída Segura P/ Nuvem" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DBEAFE;strokeColor=#3B82F6;fontColor=#1E3A8A;" vertex="1" parent="vcn">
+          <mxGeometry x="30" y="530" width="140" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Subrede Publica -->
+        <mxCell id="subnet_public" value="Sub-rede Pública (10.0.1.0/24)" style="swimlane;whiteSpace=wrap;html=1;fillColor=#F0FDF4;strokeColor=#16A34A;strokeWidth=1.5;fontStyle=1;fontColor=#166534;startSize=25;" vertex="1" parent="vcn">
+          <mxGeometry x="220" y="50" width="500" height="300" as="geometry" />
+        </mxCell>
+
+        <!-- Load Balancer / Nginx -->
+        <mxCell id="lb" value="&lt;b&gt;OCI Load Balancer&lt;/b&gt;&lt;br&gt;(IP Público / Porta 80 / 443)&lt;br&gt;&lt;i&gt;Distribui requisições Web&lt;/i&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DCFCE7;strokeColor=#22C55E;fontColor=#14532D;" vertex="1" parent="subnet_public">
+          <mxGeometry x="30" y="80" width="160" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- VM Compute -->
+        <mxCell id="vm" value="&lt;b&gt;VM Compute Instance&lt;/b&gt;&lt;br&gt;(Ubuntu / Oracle Linux)&lt;br&gt;IP Privado: 10.0.1.x&lt;hr&gt;&lt;b&gt;Nginx&lt;/b&gt; (Proxy Reverso :80)&lt;br&gt;&lt;b&gt;PM2 Process Manager:&lt;/b&gt;&lt;br&gt;• &lt;i&gt;ecommerce-web&lt;/i&gt; (Node.js :5000)&lt;br&gt;• &lt;i&gt;pedido-consumer&lt;/i&gt; (Worker Fila)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FEF9C3;strokeColor=#CA8A04;fontColor=#713F12;align=center;" vertex="1" parent="subnet_public">
+          <mxGeometry x="250" y="50" width="220" height="220" as="geometry" />
+        </mxCell>
+
+        <!-- Subrede Privada -->
+        <mxCell id="subnet_private" value="Sub-rede Privada (10.0.2.0/24)" style="swimlane;whiteSpace=wrap;html=1;fillColor=#F8FAFC;strokeColor=#475569;strokeWidth=1.5;fontStyle=1;fontColor=#334155;startSize=25;" vertex="1" parent="vcn">
+          <mxGeometry x="220" y="380" width="500" height="280" as="geometry" />
+        </mxCell>
+
+        <!-- OCI MySQL Database Service -->
+        <mxCell id="mysql" value="&lt;b&gt;OCI MySQL Database Service&lt;/b&gt;&lt;br&gt;&lt;i&gt;Isolado em Sub-rede Privada&lt;/i&gt;&lt;br&gt;&lt;b&gt;IP Privado: 10.0.2.54:3306&lt;/b&gt;&lt;hr&gt;Tabelas:&lt;br&gt;tb_produto, tb_categoria, tb_marca,&lt;br&gt;tb_pedido, tb_pedidoitens, tb_usuario" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#F1F5F9;strokeColor=#475569;fontColor=#0F172A;" vertex="1" parent="subnet_private">
+          <mxGeometry x="120" y="60" width="260" height="180" as="geometry" />
+        </mxCell>
+
+        <!-- Servicos Gerenciados OCI (Fora da VCN / Acesso Service Gateway ou HTTPS) -->
+        <mxCell id="managed_services" value="Serviços Gerenciados da Oracle Cloud (PaaS / SaaS)" style="swimlane;whiteSpace=wrap;html=1;fillColor=#FFFBEB;strokeColor=#F59E0B;strokeWidth=1.5;fontStyle=1;fontColor=#B45309;startSize=25;" vertex="1" parent="oci_region">
+          <mxGeometry x="840" y="50" width="280" height="690" as="geometry" />
+        </mxCell>
+
+        <!-- OCI Object Storage (Bucket) -->
+        <mxCell id="bucket" value="&lt;b&gt;OCI Object Storage&lt;/b&gt;&lt;br&gt;&lt;b&gt;Bucket:&lt;/b&gt; bucket-ecommerce&lt;br&gt;&lt;b&gt;Namespace:&lt;/b&gt; grbmzql0fvgk&lt;hr&gt;Armazena imagens dos produtos&lt;br&gt;&lt;i&gt;Acesso via SDK OCI (Multer/Stream)&lt;/i&gt;" style="shape=folder;fontStyle=1;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;fillColor=#FEF3C7;strokeColor=#D97706;fontColor=#92400E;" vertex="1" parent="managed_services">
+          <mxGeometry x="25" y="60" width="230" height="150" as="geometry" />
+        </mxCell>
+
+        <!-- OCI Queue Service -->
+        <mxCell id="queue" value="&lt;b&gt;OCI Queue Service (Fila)&lt;/b&gt;&lt;br&gt;&lt;b&gt;Fila:&lt;/b&gt; queue-pedidos&lt;hr&gt;Mensageria assíncrona desacoplada:&lt;br&gt;Recebe eventos de novos pedidos&lt;br&gt;(Número, Itens, Total, E-mail)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E0E7FF;strokeColor=#6366F1;fontColor=#3730A3;" vertex="1" parent="managed_services">
+          <mxGeometry x="25" y="270" width="230" height="150" as="geometry" />
+        </mxCell>
+
+        <!-- OCI Email Delivery -->
+        <mxCell id="email" value="&lt;b&gt;OCI Email Delivery&lt;/b&gt;&lt;br&gt;&lt;b&gt;Host:&lt;/b&gt; smtp.email.sa-saopaulo-1...&lt;br&gt;&lt;b&gt;Porta:&lt;/b&gt; 587 (TLS)&lt;hr&gt;&lt;b&gt;Remetente Aprovado:&lt;/b&gt;&lt;br&gt;naoresponda@sagesistemas.com.br&lt;br&gt;Disparo automático pós-consumo" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FCE7F3;strokeColor=#EC4899;fontColor=#9D174D;" vertex="1" parent="managed_services">
+          <mxGeometry x="25" y="480" width="230" height="160" as="geometry" />
+        </mxCell>
+
+        <!-- Conexoes e Fluxos -->
+        <!-- Cliente -> IGW -->
+        <mxCell id="flow_client_igw" value="1. Requisições HTTP/S" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2563EB;strokeWidth=2;fontColor=#1E40AF;" edge="1" parent="1" source="client" target="igw">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- IGW -> LB -->
+        <mxCell id="flow_igw_lb" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2563EB;strokeWidth=2;" edge="1" parent="vcn" source="igw" target="lb">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- LB -> Nginx na VM -->
+        <mxCell id="flow_lb_vm" value="2. Proxy Reverso" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#16A34A;strokeWidth=2;fontColor=#166534;" edge="1" parent="subnet_public" source="lb" target="vm">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- VM -> MySQL (IP Privado) -->
+        <mxCell id="flow_vm_mysql" value="3. SQL Queries (10.0.2.54:3306)&#xa;Persistência de dados e pedidos" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;fontColor=#334155;" edge="1" parent="vcn" source="vm" target="mysql">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="490" y="320" />
+              <mxPoint x="350" y="320" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- VM -> Bucket (Upload e Get Stream) -->
+        <mxCell id="flow_vm_bucket" value="4. Upload / Stream Imagens&#xa;(SDK OCI Object Storage)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#D97706;strokeWidth=2;fontColor=#92400E;" edge="1" parent="oci_region" source="vm" target="bucket">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="750" y="160" />
+              <mxPoint x="750" y="160" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- VM (Web) -> Fila (PutMessages) -->
+        <mxCell id="flow_vm_queue" value="5. PutMessage (Novo Pedido)&#xa;Publicação assíncrona na fila" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#6366F1;strokeWidth=2;fontColor=#3730A3;" edge="1" parent="oci_region" source="vm" target="queue">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="780" y="270" />
+              <mxPoint x="780" y="370" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Consumer (VM) -> Fila (GetMessages/Delete) -->
+        <mxCell id="flow_consumer_queue" value="6. Polling (Get &amp; Delete)&#xa;Worker PM2 consome mensagens" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#818CF8;strokeWidth=2;dashed=1;fontColor=#312E81;" edge="1" parent="oci_region" source="queue" target="vm">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="800" y="410" />
+              <mxPoint x="800" y="310" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Consumer (VM) -> Email Delivery (SMTP) -->
+        <mxCell id="flow_consumer_email" value="7. Envio SMTP (Porta 587 TLS)&#xa;Dispara e-mail ao cliente" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#EC4899;strokeWidth=2;fontColor=#9D174D;" edge="1" parent="oci_region" source="vm" target="email">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="750" y="330" />
+              <mxPoint x="750" y="600" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Email Delivery -> Cliente Final -->
+        <mxCell id="flow_email_client" value="8. Entrega na Caixa de Entrada do Cliente" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#059669;strokeWidth=2;dashed=1;fontColor=#065F46;" edge="1" parent="1" source="email" target="client">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1160" y="850" />
+              <mxPoint x="100" y="850" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
