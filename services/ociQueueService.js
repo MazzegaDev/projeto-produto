@@ -76,7 +76,7 @@ class OciQueueService {
         return res.putMessages.messages;
     }
 
-    async receberMensagens(limite = 5, timeout = 10) {
+    async receberMensagens(limite = 1, timeout = 10) {
         await this.init();
         if (!this.#client || !this.#queueId) {
             return [];

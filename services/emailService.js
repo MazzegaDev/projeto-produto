@@ -8,30 +8,42 @@ class EmailService {
         const pass = process.env.SMTP_PASS;
 
         if (!user || !pass) {
-            return null;
+            throw new Error("[Email Service] Credenciais SMTP ausentes. Configure SMTP_USER e SMTP_PASS nas variáveis de ambiente.");
+        }
+
+        if (!host || !port) {
+            throw new Error("[Email Service] Configurações de host/porta SMTP inválidas. Verifique SMTP_HOST e SMTP_PORT.");
         }
 
         return nodemailer.createTransport({
             host: host,
             port: port,
-            secure: false, // STARTTLS
+            secure: false, // STARTTLS na porta 587
             auth: {
                 user: user,
                 pass: pass
             },
-            authMethod: 'PLAIN'
+            authMethod: 'PLAIN',
+            tls: {
+                minVersion: 'TLSv1.2',
+                rejectUnauthorized: true
+            }
         });
     }
 
     async enviarEmailConfirmacaoPedido(pedido) {
-        const transporter = this.getTransporter();
-        const fromEmail = process.env.SMTP_FROM || "naoresponda@sagesistemas.com.br";
-        const destinatario = pedido.email;
-
-        if (!destinatario) {
-            console.warn(`[Email Service] Pedido #${pedido.numeroPedido} não possui e-mail de destinatário.`);
-            return false;
+        if (!pedido || typeof pedido !== "object") {
+            throw new Error("[Email Service] Objeto de pedido inválido ou não fornecido.");
         }
+
+        const destinatario = pedido.email ? pedido.email.trim() : "";
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!destinatario || !emailRegex.test(destinatario)) {
+            throw new Error(`[Email Service] Endereço de e-mail do destinatário inválido: '${destinatario}'.`);
+        }
+
+        const fromEmail = process.env.SMTP_FROM || "naoresponda@lojafullstacksistemas.com.br";
+        const transporter = this.getTransporter();
 
         // Monta tabela de itens em HTML
         let linhasTabela = "";
@@ -112,11 +124,6 @@ Data: ${new Date(pedido.data || Date.now()).toLocaleString('pt-BR')}
 Obrigado por comprar conosco!
         `;
 
-        if (!transporter) {
-            console.log(`[Email Service - Simulação] SMTP não preenchido no .env. Simulação de e-mail enviado com sucesso para ${destinatario}:\nAssunto: Confirmação do Pedido #${pedido.numeroPedido}\nTotal: R$ ${totalFormatado}`);
-            return true;
-        }
-
         try {
             const info = await transporter.sendMail({
                 from: `"Lojinha Fullstack" <${fromEmail}>`,
@@ -125,11 +132,16 @@ Obrigado por comprar conosco!
                 text: text,
                 html: html
             });
+
+            if (!info || !info.messageId) {
+                throw new Error("[Email Service] Resposta do servidor SMTP sem confirmação (messageId ausente).");
+            }
+
             console.log(`[Email Service] E-mail enviado com sucesso para ${destinatario}! MessageId: ${info.messageId}`);
-            return true;
+            return info;
         } catch (error) {
             console.error(`[Email Service] Erro ao enviar e-mail para ${destinatario}:`, error.message);
-            return false;
+            throw error;
         }
     }
 }

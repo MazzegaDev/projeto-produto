@@ -35,7 +35,8 @@ function gravarPedido() {
         let inputEmail = document.getElementById("inputEmailPedido");
         let email = inputEmail ? inputEmail.value.trim() : "";
 
-        if (!email || !email.includes("@") || !email.includes(".")) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!email || !emailRegex.test(email)) {
             alert("Por favor, informe um e-mail válido para receber a confirmação do pedido!");
             if (inputEmail) inputEmail.focus();
             return;

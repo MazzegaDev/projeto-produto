@@ -25,7 +25,16 @@ class VitrineController {
                     listaPedido = req.body;
                 } else if (req.body.itens && Array.isArray(req.body.itens)) {
                     listaPedido = req.body.itens;
-                    emailCliente = req.body.email || "";
+                    emailCliente = (req.body.email || "").trim();
+                }
+
+                // Validação obrigatória do e-mail no backend
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailCliente || !emailRegex.test(emailCliente)) {
+                    return res.send({
+                        ok: false,
+                        msg: "Por favor, informe um endereço de e-mail válido para a confirmação do pedido!"
+                    });
                 }
 
                 if(listaPedido.length > 0) {               
